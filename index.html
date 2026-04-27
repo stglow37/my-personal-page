@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>우진의 개인 페이지</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; line-height: 1.6; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .note { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>나만의 아이디어 노트</h1>
+    
+    <input type="text" id="title" placeholder="제목을 입력하세요">
+    <textarea id="content" placeholder="내용을 입력하세요" rows="4"></textarea>
+    <button onclick="saveNote()">저장하기</button>
+
+    <hr>
+    <div id="notes-list">
+        </div>
+
+    <script>
+        // 서버에서 메모 목록 가져오기
+        async function loadNotes() {
+            const response = await fetch('/notes/');
+            const notes = await response.json();
+            const listDiv = document.getElementById('notes-list');
+            listDiv.innerHTML = '';
+            notes.forEach(note => {
+                listDiv.innerHTML += `
+                    <div class="note">
+                        <h3>
+                            ${note.title} 
+                            <button onclick="deleteNote(${note.id})" style="background:red; font-size:10px; margin-left:10px;">삭제</button>
+                        </h3>
+                        <p>${note.content}</p>
+                    </div>`;
+            });
+        }
+
+        async function deleteNote(id) {
+            if (confirm("정말 삭제하시겠습니까?")) {
+                await fetch(`/notes/${id}`, {
+                    method: 'DELETE'
+                });
+                loadNotes(); // 목록 새로고침
+            }
+        }
+        
+        // 메모 서버에 저장하기
+        async function saveNote() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            
+            await fetch(`/notes/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`, {
+                method: 'POST'
+            });
+            
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            loadNotes(); // 목록 새로고침
+        }
+
+        loadNotes(); // 페이지 열자마자 목록 불러오기
+    </script>
+</body>
+</html>
