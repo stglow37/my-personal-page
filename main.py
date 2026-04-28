@@ -25,7 +25,7 @@ Base = declarative_base()
 
 
 class Note(Base):
-    __tablename__ = "notes"
+    __tablename__ = "notes_v2"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     content = Column(String)
