@@ -23,6 +23,14 @@
     <button onclick="saveNote()">저장하기</button>
 
     <hr>
+    <div style="margin-bottom: 20px; padding: 15px; background: #333; border-radius: 10px;">
+        <h4>새 폴더 만들기</h4>
+        <input type="text" id="newFolderName" placeholder="폴더 이름을 입력하세요">
+        <button onclick="addFolder()" style="background: #27ae60;">폴더 추가</button>
+    </div>
+
+    <select id="folderSelect"></select>
+    <hr>
     <div id="notes-list">
         </div>
 
@@ -68,6 +76,21 @@
             document.getElementById('title').value = '';
             document.getElementById('content').value = '';
             loadNotes(); // 목록 새로고침
+        }
+
+        // 1. 새로운 폴더를 DB에 저장
+        async function addFolder() {
+            const name = document.getElementById('newFolderName').value;
+            await fetch(`/categories/?name=${encodeURIComponent(name)}`, { method: 'POST' });
+            location.reload(); // 새로고침해서 목록 갱신
+        }
+
+        // 2. 저장된 폴더 목록을 불러와서 선택창에 넣어주기
+        async function loadFolders() {
+            const response = await fetch('/categories/'); // (API 추가 필요)
+            const folders = await response.json();
+            const select = document.getElementById('folderSelect');
+            select.innerHTML = folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
         }
 
         loadNotes(); // 페이지 열자마자 목록 불러오기

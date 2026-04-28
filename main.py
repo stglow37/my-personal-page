@@ -23,13 +23,19 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+# 1. 카테고리 모델 추가
+class Category(Base):
+    __tablename__ = "categories"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True) # 폴더 이름 (예: 천체물리학, C++공부)
 
+# 2. 메모 모델 수정 (카테고리 ID를 참조하도록)
 class Note(Base):
-    __tablename__ = "notes_v2"
+    __tablename__ = "notes_v3" # 새로운 구조를 위해 이름을 다시 바꿉니다
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     content = Column(String)
-    category = Column(String, default="일반")
+    category_id = Column(Integer) # 어떤 폴더에 속해 있는지 숫자로 저장
 
 
 Base.metadata.create_all(bind=engine)
@@ -70,6 +76,16 @@ def delete_note(note_id: int):
         return {"message": "삭제되었습니다."}
     db.close()
     return {"message": "메모를 찾을 수 없습니다."}, 404
+
+# 3. 카테고리 생성 API 추가
+@app.post("/categories/")
+def create_category(name: str):
+    db = SessionLocal()
+    new_cat = Category(name=name)
+    db.add(new_cat)
+    db.commit()
+    db.close()
+    return {"message": "Folder created!"}
 
 if __name__ == "__main__":
     import uvicorn
