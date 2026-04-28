@@ -2,11 +2,24 @@ from fastapi import FastAPI
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from fastapi.responses import HTMLResponse # 이 줄을 추가하세요
+from fastapi.responses import HTMLResponse 
+
+import os
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./my_notes.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+import os # 맨 위에 import os 추가
+
+# 기존 SQLALCHEMY_DATABASE_URL = "sqlite:///..." 부분 대신 아래 코드로 교체
+# Render 환경이면 PostgreSQL 주소를 쓰고, 내 컴퓨터면 SQLite를 쓰라는 뜻입니다.
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+SQLALCHEMY_DATABASE_URL = DATABASE_URL or "sqlite:///./my_notes.db"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# SQLite 전용 설정인 connect_args={"check_same_thread": False}는 지워도 됩니다.
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
