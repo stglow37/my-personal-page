@@ -29,6 +29,7 @@ class Note(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     content = Column(String)
+    category = Column(String, default="일반")
 
 
 Base.metadata.create_all(bind=engine)
@@ -42,12 +43,13 @@ def read_root():
 
 
 @app.post("/notes/")
-def create_note(title: str, content: str):
+def create_note(title: str, content: str, category: str = "일반"):
     db = SessionLocal()
     new_note = Note(title=title, content=content)
     db.add(new_note)
     db.commit()
     db.refresh(new_note)
+    db.close()
     return {"message": "Saved!", "id": new_note.id}
 
 

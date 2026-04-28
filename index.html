@@ -13,6 +13,12 @@
     <h1>나만의 아이디어 노트</h1>
     
     <input type="text" id="title" placeholder="제목을 입력하세요">
+    <select id="category" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #2d2d2d; color: white; border: 1px solid #444;">
+        <option value="일반">일반</option>
+        <option value="물리연구">물리연구</option>
+        <option value="프로그래밍">프로그래밍</option>
+        <option value="학교생활">학교생활</option>
+    </select>
     <textarea id="content" placeholder="내용을 입력하세요" rows="4"></textarea>
     <button onclick="saveNote()">저장하기</button>
 
@@ -30,6 +36,7 @@
             notes.forEach(note => {
                 listDiv.innerHTML += `
                     <div class="note">
+                        <small style="color: #4a90e2; font-weight: bold;">#${note.category}</small>
                         <h3>
                             ${note.title} 
                             <button onclick="deleteNote(${note.id})" style="background:red; font-size:10px; margin-left:10px;">삭제</button>
@@ -52,8 +59,9 @@
         async function saveNote() {
             const title = document.getElementById('title').value;
             const content = document.getElementById('content').value;
+            const category = document.getElementById('category').value;
             
-            await fetch(`/notes/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`, {
+            await fetch(`/notes/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&category=${encodeURIComponent(category)}`, {
                 method: 'POST'
             });
             
