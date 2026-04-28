@@ -31,7 +31,7 @@ class Category(Base):
 
 # 2. 메모 모델 수정 (카테고리 ID를 참조하도록)
 class Note(Base):
-    __tablename__ = "notes_v3" # 새로운 구조를 위해 이름을 다시 바꿉니다
+    __tablename__ = "notes_v4" # 새로운 구조를 위해 이름을 다시 바꿉니다
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     content = Column(String)
@@ -80,12 +80,21 @@ def delete_note(note_id: int):
 # 3. 카테고리 생성 API 추가
 @app.post("/categories/")
 def create_category(name: str):
+    if not name or name.strip() == "": # 이름이 비어있으면 에러 반환
+        return {"error": "Folder name cannot be empty"}
+    
     db = SessionLocal()
+    # 이미 존재하는 이름인지 확인하는 로직을 넣으면 더 안전합니다.
+    existing = db.query(Category).filter(Category.name == name).first()
+    if existing:
+        db.close()
+        return {"error": "Folder already exists"}
+    
     new_cat = Category(name=name)
     db.add(new_cat)
     db.commit()
     db.close()
-    return {"message": "Folder created!"}
+    return {"message": "Success"}
 
 if __name__ == "__main__":
     import uvicorn

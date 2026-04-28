@@ -80,9 +80,17 @@
 
         // 1. 새로운 폴더를 DB에 저장
         async function addFolder() {
-            const name = document.getElementById('newFolderName').value;
+            const nameInput = document.getElementById('newFolderName');
+            const name = nameInput.value.trim(); // 앞뒤 공백 제거
+    
+            if (!name) {
+                alert("폴더 이름을 입력해주세요!");
+                return;
+            }
+
             await fetch(`/categories/?name=${encodeURIComponent(name)}`, { method: 'POST' });
-            location.reload(); // 새로고침해서 목록 갱신
+            nameInput.value = ''; // 입력창 비우기
+            location.reload(); 
         }
 
         // 2. 저장된 폴더 목록을 불러와서 선택창에 넣어주기
